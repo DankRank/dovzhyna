@@ -1,12 +1,6 @@
 #include <stdint.h>
 namespace dovzhyna {
-	struct OpBasicInfo {
-		int attrib;
-		bool modrm; // Here only distinction between M_NONE and others matters
-		int immed;
-	};
-
-	enum {
+	enum InsAttrib{
 		A_NONE,
 		A_PREFIX,
 		A_MULTIBYTE,
@@ -15,26 +9,23 @@ namespace dovzhyna {
 		// NOTE: No, UD2 is not an undefined instruction, it is defined to be an undefined instruction.
 	};
 
-	enum {
+	enum ImmType {
 		M_NONE,
-		M_BYTE,
-		M_WORD,
+		M_BYTE, // 1 byte
+		M_WORD, // 2 bytes
+		M_THREE, // 3 bytes, used by ENTER instruction
+
 		M_VORD, // word or dword [or qword] depending on operand size
 		M_ZORD = M_VORD, // word or dword depending on operand size (for now equal to VORD)
-		M_DWORD,
-		M_YORD = M_DWORD, // dword [or qword]
-		M_MEMORY, // in modrm field, it means a generic pointer to data of unspecified size
-				  // in immed field, it means that immediate value is of address size, and is actually an offset without modrm
-		M_DVORD = M_MEMORY, // used only by BOUND instruction - two words/dwords depending on opsize (also, has to be in memory)
-		M_MM = M_MEMORY,
-		M_XMM = M_MEMORY, // XMM or YMM or ZMM
-		M_REG = M_MEMORY, // modrm can only point to register
 
-		M_THREE, // WORD+BYTE, used for enter instruction
-
+		M_MEMORY, // address size
 		M_FAR, // far address (M_WORD + M_MEMORY)
-		M_COPROC, // for fpu instructions
-		
+	};
+
+	struct OpBasicInfo {
+		InsAttrib attrib;
+		bool modrm;
+		ImmType immed;
 	};
 
 	struct OpState {

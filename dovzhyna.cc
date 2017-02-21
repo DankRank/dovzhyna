@@ -4,7 +4,6 @@
 
 #define _DOVZHYNA_CC_INCLUDE
 #include "op_basic_info.hh"
-#define $UD { A_UD, M_NONE, M_NONE }
 #include "op_basic_info_0f.hh"
 
 namespace dovzhyna {
@@ -29,7 +28,7 @@ namespace dovzhyna {
 		assert(!"not a prefix");
 		return -1;
 	}
-	static inline int get_imm_size(int imm, bool opsize, bool memsize) {
+	static inline int get_imm_size(ImmType imm, bool opsize, bool memsize) {
 		switch (imm) {
 		case M_NONE:
 			return 0;
@@ -37,19 +36,16 @@ namespace dovzhyna {
 			return 1;
 		case M_WORD:
 			return 2;
-		case M_DWORD:
-			return 4;
+		case M_THREE:
+			return 3;
 		case M_VORD:
 			return opsize ? 4 : 2;
 		case M_MEMORY:
 			return memsize ? 4 : 2;
-		case M_THREE:
-			return 3;
 		case M_FAR:
 			return memsize ? 6 : 4;
-		case M_COPROC:
 		default:
-			assert(!"NYI");
+			assert(!"Invalid ImmType");
 			return -1;
 		}
 	}
