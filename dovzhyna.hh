@@ -45,7 +45,6 @@ namespace dovzhyna {
 	enum {
 		S_INIT, // prefixes and initial op
 		S_CONT, // continuation 0F xx
-		S_CONT2, // continuation 0F 38/3A xx
 		S_MODRM,
 		S_GRPFIXUP,
 		S_IMMED,

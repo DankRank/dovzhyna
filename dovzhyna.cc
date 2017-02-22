@@ -30,6 +30,7 @@ namespace dovzhyna {
 	}
 	int sproc_init(OpState&op) {
 		uint8_t code = op.data[op.index++];
+		op.opcode = code;
 
 		if (op_basic_info[code].attrib == A_PREFIX) {
 			switch (code) {
@@ -56,19 +57,26 @@ namespace dovzhyna {
 		}
 
 		// not a prefix
-		op.opcode = code;
 		op.basic = op_basic_info[code];
 
 		return S_MODRM;
 	}
 	int sproc_cont(OpState&op) {
-		uint8_t code = op.data[op.index];
+		uint8_t code = op.data[op.index++];
 		op.opcode = (op.opcode << 8) | code;
 		op.basic = op_basic_info_0f[code];
-		op.index++;
 
 		if (op.basic.attrib == A_PREFIX) {
-			return S_CONT2;
+			code = op.data[op.index++];
+			if (op.opcode == 0x0F38) {
+				op.basic = { A_NONE, true, M_NONE };
+			}
+			else if (op.opcode == 0x0F3A) {
+				op.basic = { A_NONE, true, M_BYTE };
+				// 66 0f 3a 4a/4b/4c - don't have immed, but only available
+				// using (E)VEX form
+			}
+			op.opcode = (op.opcode << 8) | code;
 		}
 
 		if (op.basic.attrib == A_UD) {
@@ -77,15 +85,10 @@ namespace dovzhyna {
 
 		return S_MODRM;
 	}
-	int sproc_cont2(OpState&op) {
-		assert(!"NYI");
-		return S_ERROR;
-	}
 	int sproc_modrm(OpState&op) {
 		if (op.basic.modrm) {
-			uint8_t modrm = op.data[op.index];
+			uint8_t modrm = op.data[op.index++];
 			op.modrm = modrm;
-			op.index++;
 
 			if (op.bits32 != (op.grp4 != -1)) { // 32-bit addressing
 				if (modrm < 0xC0 && (modrm & 7) == 4) {
@@ -138,7 +141,6 @@ namespace dovzhyna {
 	int(*sprocs[])(OpState&op) = {
 		sproc_init,
 		sproc_cont,
-		sproc_cont2,
 		sproc_modrm,
 		sproc_grpfixup,
 		sproc_immed,
