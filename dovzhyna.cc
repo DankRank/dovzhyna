@@ -7,27 +7,6 @@
 #include "op_basic_info_0f.hh"
 
 namespace dovzhyna {
-	static inline int get_prefix_grp(uint8_t c) {
-		switch (c) {
-		case 0xF0:
-		case 0xF2:
-		case 0xF3:
-			return 0;
-		case 0x26:
-		case 0x2E:
-		case 0x36:
-		case 0x3E:
-		case 0x64:
-		case 0x65:
-			return 1;
-		case 0x66:
-			return 2;
-		case 0x67:
-			return 3;
-		}
-		assert(!"not a prefix");
-		return -1;
-	}
 	static inline int get_imm_size(ImmType imm, bool opsize, bool memsize) {
 		switch (imm) {
 		case M_NONE:
@@ -50,25 +29,35 @@ namespace dovzhyna {
 		}
 	}
 	int sproc_init(OpState&op) {
-		uint8_t code = op.data[op.index];
+		uint8_t code = op.data[op.index++];
+
 		if (op_basic_info[code].attrib == A_PREFIX) {
-			switch (get_prefix_grp(code)) {
-			case 0: op.grp1 = code; break;
-			case 1: op.grp2 = code; break;
-			case 2: op.grp3 = code; break;
-			case 3: op.grp4 = code; break;
+			switch (code) {
+			case 0xF0:
+			case 0xF2:
+			case 0xF3:
+				op.grp1 = code; break;
+			case 0x26:
+			case 0x2E:
+			case 0x36:
+			case 0x3E:
+			case 0x64:
+			case 0x65:
+				op.grp2 = code; break;
+			case 0x66:
+				op.grp3 = code; break;
+			case 0x67:
+				op.grp4 = code; break;
+			case 0x0F:
+				return S_CONT;
 			}
-			++op.index;
+			
 			return S_INIT;
 		}
+
 		// not a prefix
 		op.opcode = code;
 		op.basic = op_basic_info[code];
-		op.index++;
-
-		if (op.basic.attrib == A_MULTIBYTE) {	
-			return S_CONT;
-		}
 
 		return S_MODRM;
 	}
@@ -78,7 +67,7 @@ namespace dovzhyna {
 		op.basic = op_basic_info_0f[code];
 		op.index++;
 
-		if (op.basic.attrib == A_MULTIBYTE) {
+		if (op.basic.attrib == A_PREFIX) {
 			return S_CONT2;
 		}
 

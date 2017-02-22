@@ -65,9 +65,9 @@ namespace dovzhyna {
 		{ A_NONE, false, M_NONE }, // 35 SYSEXIT
 		{ A_UD }, // 36
 		{ A_NONE, false, M_NONE }, // 37 GETSEC
-		{ A_MULTIBYTE }, // 38 3-byte
+		{ A_PREFIX }, // 38 3-byte
 		{ A_UD }, // 39
-		{ A_MULTIBYTE }, // 3A 3-byte
+		{ A_PREFIX }, // 3A 3-byte
 		{ A_UD },{ A_UD },{ A_UD },{ A_UD },{ A_UD }, // 3B 3C 3D 3E 3F
 		// 40-4F CMOVEcc r32, rm32
 		{ A_NONE, true, M_NONE },

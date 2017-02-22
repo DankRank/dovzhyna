@@ -18,7 +18,7 @@ namespace dovzhyna {
 		{ A_NONE, false, M_BYTE }, // 0C OR al, imm8
 		{ A_NONE, false, M_ZORD }, // 0D OR eax, imm32
 		{ A_NONE, false, M_NONE }, // 0E PUSH CS
-		{ A_MULTIBYTE }, // 0F 2-byte escape
+		{ A_PREFIX }, // 0F 2-byte escape
 		{ A_NONE, true, M_NONE }, // 10 ADC rm8, r8
 		{ A_NONE, true, M_NONE }, // 11 ADC rm32, r32
 		{ A_NONE, true, M_NONE }, // 12 ADC r8, rm8
