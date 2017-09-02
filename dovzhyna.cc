@@ -151,6 +151,6 @@ namespace dovzhyna {
 	sproc_done:
 		return S_SUCCESS;
 	sproc_error:
-	    return S_ERROR;
+		return S_ERROR;
 	}
 }
