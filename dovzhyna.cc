@@ -88,7 +88,7 @@ namespace dovzhyna {
 		}
 
 		if (op.basic.attrib == A_UD) {
-			goto sproc_error;
+			return S_ERROR;
 		}
 		
 		goto sproc_modrm;
@@ -148,9 +148,6 @@ namespace dovzhyna {
 			op.index += get_imm_size(op.basic.immed, op.bits32 != (op.grp3 != -1), op.bits32 != (op.grp4 != -1));
 		}
 		
-	sproc_success:
 		return S_SUCCESS;
-	sproc_error:
-		return S_ERROR;
 	}
 }
