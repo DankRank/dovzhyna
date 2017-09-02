@@ -28,8 +28,6 @@ namespace dovzhyna {
 	};
 
 	struct OpState {
-		int state;
-
 		uint8_t data[15];
 		int index;
 
@@ -43,13 +41,8 @@ namespace dovzhyna {
 	};
 
 	enum {
-		S_INIT, // prefixes and initial op
-		S_CONT, // continuation 0F xx
-		S_MODRM,
-		S_GRPFIXUP,
-		S_IMMED,
-		S_DONE = -2 ,
-		S_ERROR = -1
+		S_SUCCESS = 0,
+		S_ERROR = 1
 	};
 
 	int decode(OpState&op, uint8_t* data, bool bits32);

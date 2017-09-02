@@ -29,8 +29,8 @@ int main(int argc, char **argv) {
 	dovzhyna::OpState os;
 	int lastop = 0;
 	for (int i = 0; i < filesize+15;) {
-		dovzhyna::decode(os, (uint8_t*)text + i, true);
-		if (os.state == dovzhyna::S_ERROR) {
+		int status = dovzhyna::decode(os, (uint8_t*)text + i, true);
+		if (status == dovzhyna::S_ERROR) {
 			printf("error %.8X\n", i);
 			i++;
 			continue;
