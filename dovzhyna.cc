@@ -148,7 +148,7 @@ namespace dovzhyna {
 			op.index += get_imm_size(op.basic.immed, op.bits32 != (op.grp3 != -1), op.bits32 != (op.grp4 != -1));
 		}
 		
-	sproc_done:
+	sproc_success:
 		return S_SUCCESS;
 	sproc_error:
 		return S_ERROR;
