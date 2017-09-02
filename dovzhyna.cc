@@ -28,8 +28,16 @@ namespace dovzhyna {
 			return -1;
 		}
 	}
-	int sproc_init(OpState&op) {
-		uint8_t code = op.data[op.index++];
+	
+	int decode(OpState&op, uint8_t* data, bool bits32) {
+		memcpy(op.data, data, 15);
+		op.index = 0;
+		op.grp1 = op.grp2 = op.grp3 = op.grp4 = -1;
+		op.bits32 = bits32;
+		
+		uint8_t code = 0;
+	sproc_init:
+		code = op.data[op.index++];
 		op.opcode = code;
 
 		if (op_basic_info[code].attrib == A_PREFIX) {
@@ -50,19 +58,19 @@ namespace dovzhyna {
 			case 0x67:
 				op.grp4 = code; break;
 			case 0x0F:
-				return S_CONT;
+				goto sproc_cont;
 			}
 			
-			return S_INIT;
+			goto sproc_init;
 		}
-
+		
 		// not a prefix
 		op.basic = op_basic_info[code];
 
-		return S_MODRM;
-	}
-	int sproc_cont(OpState&op) {
-		uint8_t code = op.data[op.index++];
+		goto sproc_modrm;
+		
+	sproc_cont:
+		code = op.data[op.index++];
 		op.opcode = (op.opcode << 8) | code;
 		op.basic = op_basic_info_0f[code];
 
@@ -80,12 +88,12 @@ namespace dovzhyna {
 		}
 
 		if (op.basic.attrib == A_UD) {
-			return S_ERROR;
+			goto sproc_error;
 		}
-
-		return S_MODRM;
-	}
-	int sproc_modrm(OpState&op) {
+		
+		goto sproc_modrm;
+	
+	sproc_modrm:
 		if (op.basic.modrm) {
 			uint8_t modrm = op.data[op.index++];
 			op.modrm = modrm;
@@ -113,11 +121,13 @@ namespace dovzhyna {
 			if (modrm >= 0x40 && modrm < 0x80) {
 				op.index += 1;
 			}
-			return S_GRPFIXUP;
+			
+			goto sproc_grpfixup;
 		}
-		return S_IMMED;
-	}
-	int sproc_grpfixup(OpState&op) {
+		
+		goto sproc_immed;
+		
+	sproc_grpfixup:
 		if (op.basic.attrib == A_GRP) {
 			// fixup for some of the Grp's
 			switch (op.opcode) {
@@ -129,32 +139,18 @@ namespace dovzhyna {
 				break;
 			}
 		}
-		return S_IMMED;
-	}
-	int sproc_immed(OpState&op) {
+		
+		goto sproc_immed;
+	
+	sproc_immed:
 		if (op.basic.immed) {
 			op.imm = op.index;
 			op.index += get_imm_size(op.basic.immed, op.bits32 != (op.grp3 != -1), op.bits32 != (op.grp4 != -1));
 		}
-		return S_DONE;
+		
+	sproc_done:
+		return S_SUCCESS;
+	sproc_error:
+	    return S_ERROR;
 	}
-	int(*sprocs[])(OpState&op) = {
-		sproc_init,
-		sproc_cont,
-		sproc_modrm,
-		sproc_grpfixup,
-		sproc_immed,
-	};
-	int decode(OpState&op, uint8_t* data, bool bits32) {
-		op.state = S_INIT;
-		memcpy(op.data, data, 15);
-		op.index = 0;
-		op.grp1 = op.grp2 = op.grp3 = op.grp4 = -1;
-		op.bits32 = bits32;
-		while (op.state != S_DONE && op.state != S_ERROR) {
-			op.state = sprocs[op.state](op);
-		}
-		return op.state;
-	}
-	
 }
