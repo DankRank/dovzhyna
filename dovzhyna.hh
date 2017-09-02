@@ -41,8 +41,8 @@ namespace dovzhyna {
 	};
 
 	enum {
-		S_DONE = 0,
-		S_ERROR = -1
+		S_SUCCESS = 0,
+		S_ERROR = 1
 	};
 
 	int decode(OpState&op, uint8_t* data, bool bits32);
