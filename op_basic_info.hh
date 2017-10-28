@@ -147,14 +147,14 @@ namespace dovzhyna {
 		{ A_NONE, true, M_NONE }, // 8D LEA r32, mem
 		{ A_NONE, true, M_NONE }, // 8E MOV s16, rm16
 		{ A_NONE, true, M_NONE }, // 8F Grp1A (r=0 POP, otherwise #UD) rm32
-		{ A_NONE, true, M_NONE }, // 90 NOP
-		{ A_NONE, true, M_NONE }, // 91 XCHG eax,ecx
-		{ A_NONE, true, M_NONE }, // 92 XCHG eax,edx
-		{ A_NONE, true, M_NONE }, // 93 XCHG eax,ebx
-		{ A_NONE, true, M_NONE }, // 94 XCHG eax,esp
-		{ A_NONE, true, M_NONE }, // 95 XCHG eax,ebp
-		{ A_NONE, true, M_NONE }, // 96 XCHG eax,esi
-		{ A_NONE, true, M_NONE }, // 97 XCHG eax,edi
+		{ A_NONE, false, M_NONE }, // 90 NOP
+		{ A_NONE, false, M_NONE }, // 91 XCHG eax,ecx
+		{ A_NONE, false, M_NONE }, // 92 XCHG eax,edx
+		{ A_NONE, false, M_NONE }, // 93 XCHG eax,ebx
+		{ A_NONE, false, M_NONE }, // 94 XCHG eax,esp
+		{ A_NONE, false, M_NONE }, // 95 XCHG eax,ebp
+		{ A_NONE, false, M_NONE }, // 96 XCHG eax,esi
+		{ A_NONE, false, M_NONE }, // 97 XCHG eax,edi
 		{ A_NONE, false, M_NONE }, // 98 CBW
 		{ A_NONE, false, M_NONE }, // 99 CWD
 		{ A_NONE, false, M_FAR }, // 9A CALL far
