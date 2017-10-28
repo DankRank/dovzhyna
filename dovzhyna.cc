@@ -91,8 +91,6 @@ namespace dovzhyna {
 			return S_ERROR;
 		}
 		
-		goto sproc_modrm;
-	
 	sproc_modrm:
 		if (op.basic.modrm) {
 			uint8_t modrm = op.data[op.index++];
@@ -139,8 +137,6 @@ namespace dovzhyna {
 				break;
 			}
 		}
-		
-		goto sproc_immed;
 	
 	sproc_immed:
 		if (op.basic.immed) {
