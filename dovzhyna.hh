@@ -34,7 +34,7 @@ namespace dovzhyna {
 		bool bits32;
 
 		OpBasicInfo basic;
-		int grp1, grp2, grp3, grp4;
+		int pfx_rep, pfx_seg, pfx_opsize, pfx_memsize;
 		int opcode, modrm, imm;
 		// imm is offset to immediate data
 		

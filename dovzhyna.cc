@@ -33,7 +33,7 @@ namespace dovzhyna {
 	int decode(OpState&op, uint8_t* data, bool bits32) {
 		memcpy(op.data, data, 15);
 		op.index = 0;
-		op.grp1 = op.grp2 = op.grp3 = op.grp4 = -1;
+		op.pfx_rep = op.pfx_seg = op.pfx_opsize = op.pfx_memsize = -1;
 		op.bits32 = bits32;
 		
 		uint8_t code = 0;
@@ -44,22 +44,22 @@ namespace dovzhyna {
 
 		if (op_basic_info[code].attrib == A_PREFIX) {
 			switch (code) {
-			case 0xF0:
-			case 0xF2:
-			case 0xF3:
-				op.grp1 = code; break;
-			case 0x26:
-			case 0x2E:
-			case 0x36:
-			case 0x3E:
-			case 0x64:
-			case 0x65:
-				op.grp2 = code; break;
-			case 0x66:
-				op.grp3 = code; break;
-			case 0x67:
-				op.grp4 = code; break;
-			case 0x0F:
+			case 0xF0: // LOCK
+			case 0xF2: // REPNE
+			case 0xF3: // REP
+				op.pfx_rep = code; break;
+			case 0x26: // ES
+			case 0x2E: // CS
+			case 0x36: // SS
+			case 0x3E: // DS
+			case 0x64: // FS
+			case 0x65: // GS
+				op.pfx_seg = code; break;
+			case 0x66: // operand size prefix
+				op.pfx_opsize = code; break;
+			case 0x67: // address size prefix
+				op.pfx_memsize = code; break;
+			case 0x0F: // 2-byte opcode prefix
 				goto sproc_cont;
 			}
 			
@@ -101,7 +101,7 @@ namespace dovzhyna {
 			uint8_t modrm = op.data[op.index++];
 			op.modrm = modrm;
 
-			if (op.bits32 != (op.grp4 != -1)) { // 32-bit addressing
+			if (op.bits32 != (op.pfx_memsize != -1)) { // 32-bit addressing
 				if (modrm < 0xC0 && (modrm & 7) == 4) {
 					CHECK_INDEX(op.index, 1);
 					uint8_t sib = op.data[op.index++];
@@ -156,7 +156,7 @@ namespace dovzhyna {
 	sproc_immed:
 		if (op.basic.immed) {
 			op.imm = op.index;
-			op.index += get_imm_size(op.basic.immed, op.bits32 != (op.grp3 != -1), op.bits32 != (op.grp4 != -1));
+			op.index += get_imm_size(op.basic.immed, op.bits32 != (op.pfx_opsize != -1), op.bits32 != (op.pfx_memsize != -1));
 			CHECK_INDEX(op.index, 0);
 		}
 		
