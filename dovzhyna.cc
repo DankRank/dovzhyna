@@ -98,7 +98,10 @@ namespace dovzhyna {
 
 			if (op.bits32 != (op.grp4 != -1)) { // 32-bit addressing
 				if (modrm < 0xC0 && (modrm & 7) == 4) {
-					op.index++; // skip sib
+					uint8_t sib = op.data[op.index++];
+					if (modrm < 0x40 && (sib & 7) == 5) {
+						op.index += 4;
+					}
 				}
 				if (modrm >= 0x80 && modrm < 0xC0) {
 					op.index += 4;
