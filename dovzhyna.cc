@@ -29,6 +29,7 @@ namespace dovzhyna {
 		}
 	}
 	
+#define CHECK_INDEX(x,y) if(x > 15-y) return S_ERROR
 	int decode(OpState&op, uint8_t* data, bool bits32) {
 		memcpy(op.data, data, 15);
 		op.index = 0;
@@ -37,6 +38,7 @@ namespace dovzhyna {
 		
 		uint8_t code = 0;
 	sproc_init:
+		CHECK_INDEX(op.index, 1);
 		code = op.data[op.index++];
 		op.opcode = code;
 
@@ -70,11 +72,13 @@ namespace dovzhyna {
 		goto sproc_modrm;
 		
 	sproc_cont:
+		CHECK_INDEX(op.index, 1);
 		code = op.data[op.index++];
 		op.opcode = (op.opcode << 8) | code;
 		op.basic = op_basic_info_0f[code];
 
 		if (op.basic.attrib == A_PREFIX) {
+			CHECK_INDEX(op.index, 1);
 			code = op.data[op.index++];
 			if (op.opcode == 0x0F38) {
 				op.basic = { A_NONE, true, M_NONE };
@@ -93,33 +97,41 @@ namespace dovzhyna {
 		
 	sproc_modrm:
 		if (op.basic.modrm) {
+			CHECK_INDEX(op.index, 1);
 			uint8_t modrm = op.data[op.index++];
 			op.modrm = modrm;
 
 			if (op.bits32 != (op.grp4 != -1)) { // 32-bit addressing
 				if (modrm < 0xC0 && (modrm & 7) == 4) {
+					CHECK_INDEX(op.index, 1);
 					uint8_t sib = op.data[op.index++];
 					if (modrm < 0x40 && (sib & 7) == 5) {
+						CHECK_INDEX(op.index, 4);
 						op.index += 4;
 					}
 				}
 				if (modrm >= 0x80 && modrm < 0xC0) {
+					CHECK_INDEX(op.index, 4);
 					op.index += 4;
 				}
 				else if ((modrm & 0xC7) == 5) {
+					CHECK_INDEX(op.index, 4);
 					op.index += 4;
 				}
 			}
 			else {
 				if (modrm >= 0x80 && modrm < 0xC0) {
+					CHECK_INDEX(op.index, 2);
 					op.index += 2;
 				}
 				else if ((modrm & 0xC7) == 6) {
+					CHECK_INDEX(op.index, 2);
 					op.index += 2;
 				}
 			}
 
 			if (modrm >= 0x40 && modrm < 0x80) {
+				CHECK_INDEX(op.index, 1);
 				op.index += 1;
 			}
 			
@@ -145,6 +157,7 @@ namespace dovzhyna {
 		if (op.basic.immed) {
 			op.imm = op.index;
 			op.index += get_imm_size(op.basic.immed, op.bits32 != (op.grp3 != -1), op.bits32 != (op.grp4 != -1));
+			CHECK_INDEX(op.index, 0);
 		}
 		
 		return S_SUCCESS;
