@@ -11,7 +11,7 @@ long static inline fsize(FILE* f) {
 	return size;
 }
 void static inline printhex(uint8_t* data, size_t sz) {
-	for (int i = 0; i < sz; i++) {
+	for (size_t i = 0; i < sz; i++) {
 		if (i) printf(" ");
 		printf("%.2X", (unsigned)data[i]);
 	}

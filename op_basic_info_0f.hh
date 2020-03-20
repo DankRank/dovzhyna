@@ -1,5 +1,5 @@
 #ifndef _DOVZHYNA_CC_INCLUDE
-#error don't include this file
+#error "do not include this file"
 #endif
 namespace dovzhyna {
 	// NOTE: Originally this table was supposed to only cover unprefixed 2-byte

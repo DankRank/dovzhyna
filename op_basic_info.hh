@@ -1,5 +1,5 @@
 #ifndef _DOVZHYNA_CC_INCLUDE
-#error don't include this file
+#error "do not include this file"
 #endif
 namespace dovzhyna {
 	static OpBasicInfo op_basic_info[] = {
