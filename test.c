@@ -1,35 +1,39 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "dovzhyna.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-long static inline fsize(FILE* f) {
+static long fsize(FILE* f)
+{
 	long old = ftell(f);
 	fseek(f, 0, SEEK_END);
 	long size = ftell(f);
 	fseek(f, old, SEEK_SET);
 	return size;
 }
-void static inline printhex(uint8_t* data, size_t sz) {
+static void printhex(uint8_t* data, size_t sz)
+{
 	for (size_t i = 0; i < sz; i++) {
 		if (i) printf(" ");
 		printf("%.2X", (unsigned)data[i]);
 	}
 }
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	if (argc != 2) return -1;
 	FILE* f = fopen(argv[1], "rb");
 	if (!f) return -1;
 	long filesize = fsize(f);
-	char* text = new char[filesize+15];
+	char* text = (char*)malloc(filesize+15);
 	fread(text, filesize, 1, f);
 	memset(text + filesize, 0xCC, 15);
 	fclose(f);
 
-	OpState os;
+	struct OpState os;
 	int lastop = 0;
 	for (int i = 0; i < filesize+15;) {
-		int status = dovzhyna_decode(&os, (uint8_t*)text + i, true);
+		int status = dovzhyna_decode(&os, (uint8_t*)text + i, 1);
 		if (status == S_ERROR) {
 			printf("error %.8X\n", i);
 			i++;
@@ -59,5 +63,5 @@ int main(int argc, char **argv) {
 		lastop = os.opcode;
 	}
 	
-	delete[] text;
+	free(text);
 }
