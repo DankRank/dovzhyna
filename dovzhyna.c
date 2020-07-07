@@ -2,12 +2,7 @@
 #include <string.h>
 #include "dovzhyna.h"
 
-#define DOVZHYNA_C_INCLUDE_
-// FIXME:
-#define true 1
-#define false 0
-#include "op_basic_info.h"
-#include "op_basic_info_0f.h"
+#include "x86optab.h"
 
 static int get_imm_size(enum ImmType imm, int opsize, int memsize)
 {
@@ -32,6 +27,16 @@ static int get_imm_size(enum ImmType imm, int opsize, int memsize)
 	}
 }
 
+static struct OpBasicInfo op_basic_info(int op) {
+	struct OpBasicInfo basic;
+	char byte = x86optab[op];
+	basic.attrib = (byte>>4)&3;
+	basic.modrm = !!(byte&8);
+	basic.immed = byte&7;
+	return basic;
+}
+#define op_basic_info_0f(op) op_basic_info(256+(op))
+
 #define CHECK_INDEX(x,y) if(x > 15-y) return S_ERROR
 int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 {
@@ -46,7 +51,8 @@ sproc_init:
 	code = op->data[op->index++];
 	op->opcode = code;
 
-	if (op_basic_info[code].attrib == A_PREFIX) {
+	op->basic = op_basic_info(code);
+	if (op->basic.attrib == A_PREFIX) {
 		switch (code) {
 		case 0xF0: // LOCK
 		case 0xF2: // REPNE
@@ -71,15 +77,13 @@ sproc_init:
 	}
 	
 	// not a prefix
-	op->basic = op_basic_info[code];
-
 	goto sproc_modrm;
 	
 sproc_cont:
 	CHECK_INDEX(op->index, 1);
 	code = op->data[op->index++];
 	op->opcode = (op->opcode << 8) | code;
-	op->basic = op_basic_info_0f[code];
+	op->basic = op_basic_info_0f(code);
 
 	if (op->basic.attrib == A_PREFIX) {
 		CHECK_INDEX(op->index, 1);

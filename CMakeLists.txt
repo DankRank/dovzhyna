@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 PROJECT(dovzhyna VERSION 0.0.0 LANGUAGES C)
 
-ADD_LIBRARY(dovzhyna STATIC dovzhyna.c dovzhyna.h op_basic_info.h op_basic_info_0f.h)
+ADD_LIBRARY(dovzhyna STATIC dovzhyna.c dovzhyna.h x86optab.h)
 SET_TARGET_PROPERTIES(dovzhyna PROPERTIES PUBLIC_HEADER "dovzhyna.h")
 
 ADD_EXECUTABLE(dovzhyna_test test.c)
