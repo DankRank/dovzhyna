@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "dovzhyna.hh"
+#include "dovzhyna.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -26,11 +26,11 @@ int main(int argc, char **argv) {
 	memset(text + filesize, 0xCC, 15);
 	fclose(f);
 
-	dovzhyna::OpState os;
+	OpState os;
 	int lastop = 0;
 	for (int i = 0; i < filesize+15;) {
-		int status = dovzhyna::decode(os, (uint8_t*)text + i, true);
-		if (status == dovzhyna::S_ERROR) {
+		int status = dovzhyna_decode(&os, (uint8_t*)text + i, true);
+		if (status == S_ERROR) {
 			printf("error %.8X\n", i);
 			i++;
 			continue;
