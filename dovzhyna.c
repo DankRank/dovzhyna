@@ -143,25 +143,19 @@ sproc_modrm:
 			op->index += 1;
 		}
 		
-		goto sproc_grpfixup;
-	}
-	
-	goto sproc_immed;
-	
-sproc_grpfixup:
-	if (op->basic.attrib == A_GRP) {
-		// fixup for some of the Grp's
-		switch (op->opcode) {
-		case 0xF6:
-		case 0xF7:
-			if (op->modrm & 0x38) {
-				op->basic.immed = M_NONE;
+		if (op->basic.attrib == A_GRP) {
+			// fixup for some of the Grp's
+			switch (op->opcode) {
+			case 0xF6:
+			case 0xF7:
+				if (op->modrm & 0x38) {
+					op->basic.immed = M_NONE;
+				}
+				break;
 			}
-			break;
 		}
 	}
-
-sproc_immed:
+	
 	if (op->basic.immed) {
 		op->imm = op->index;
 		op->index += get_imm_size(op->basic.immed, op->bits32 != (op->pfx_opsize != -1), op->bits32 != (op->pfx_memsize != -1));
