@@ -7,7 +7,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, true, M_NONE }, // 02 ADD r8, rm8
 	{ A_NONE, true, M_NONE }, // 03 ADD r32, rm32
 	{ A_NONE, false, M_BYTE }, // 04 ADD al, imm8
-	{ A_NONE, false, M_ZORD }, // 05 ADD eax, imm32
+	{ A_NONE, false, M_VORD }, // 05 ADD eax, imm32
 	{ A_NONE, false, M_NONE }, // 06 PUSH ES
 	{ A_NONE, false, M_NONE }, // 07 POP ES
 	{ A_NONE, true, M_NONE }, // 08 OR rm8, r8
@@ -15,7 +15,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, true, M_NONE }, // 0A OR r8, rm8
 	{ A_NONE, true, M_NONE }, // 0B OR r32, rm32
 	{ A_NONE, false, M_BYTE }, // 0C OR al, imm8
-	{ A_NONE, false, M_ZORD }, // 0D OR eax, imm32
+	{ A_NONE, false, M_VORD }, // 0D OR eax, imm32
 	{ A_NONE, false, M_NONE }, // 0E PUSH CS
 	{ A_PREFIX }, // 0F 2-byte escape
 	{ A_NONE, true, M_NONE }, // 10 ADC rm8, r8
@@ -23,7 +23,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, true, M_NONE }, // 12 ADC r8, rm8
 	{ A_NONE, true, M_NONE }, // 13 ADC r32, rm32
 	{ A_NONE, false, M_BYTE }, // 14 ADC al, imm8
-	{ A_NONE, false, M_ZORD }, // 15 ADC eax, imm32
+	{ A_NONE, false, M_VORD }, // 15 ADC eax, imm32
 	{ A_NONE, false, M_NONE }, // 16 PUSH SS
 	{ A_NONE, false, M_NONE }, // 17 POP SS
 	{ A_NONE, true, M_NONE }, // 18 SBB rm8, r8
@@ -31,7 +31,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, true, M_NONE }, // 1A SBB r8, rm8
 	{ A_NONE, true, M_NONE }, // 1B SBB r32, rm32
 	{ A_NONE, false, M_BYTE }, // 1C SBB al, imm8
-	{ A_NONE, false, M_ZORD }, // 1D SBB eax, imm32
+	{ A_NONE, false, M_VORD }, // 1D SBB eax, imm32
 	{ A_NONE, false, M_NONE }, // 1E PUSH DS
 	{ A_NONE, false, M_NONE }, // 1F POP DS
 	{ A_NONE, true, M_NONE }, // 20 AND rm8, r8
@@ -39,7 +39,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, true, M_NONE }, // 22 AND r8, rm8
 	{ A_NONE, true, M_NONE }, // 23 AND r32, rm32
 	{ A_NONE, false, M_BYTE }, // 24 AND al, imm8
-	{ A_NONE, false, M_ZORD }, // 25 AND eax, imm32
+	{ A_NONE, false, M_VORD }, // 25 AND eax, imm32
 	{ A_PREFIX }, // 26 ES prefix
 	{ A_NONE, false, M_NONE }, // 27 DAA
 	{ A_NONE, true, M_NONE }, // 28 SUB rm8, r8
@@ -47,7 +47,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, true, M_NONE }, // 2A SUB r8, rm8
 	{ A_NONE, true, M_NONE }, // 2B SUB r32, rm32
 	{ A_NONE, false, M_BYTE }, // 2C SUB al, imm8
-	{ A_NONE, false, M_ZORD }, // 2D SUB eax, imm32
+	{ A_NONE, false, M_VORD }, // 2D SUB eax, imm32
 	{ A_PREFIX }, // 2E CS prefix
 	{ A_NONE, false, M_NONE }, // 2F DAS
 	{ A_NONE, true, M_NONE }, // 30 XOR rm8, r8
@@ -55,7 +55,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, true, M_NONE }, // 32 XOR r8, rm8
 	{ A_NONE, true, M_NONE }, // 33 XOR r32, rm32
 	{ A_NONE, false, M_BYTE }, // 34 XOR al, imm8
-	{ A_NONE, false, M_ZORD }, // 35 XOR eax, imm32
+	{ A_NONE, false, M_VORD }, // 35 XOR eax, imm32
 	{ A_PREFIX }, // 36 SS prefix
 	{ A_NONE, false, M_NONE }, // 37 AAA
 	{ A_NONE, true, M_NONE }, // 38 CMP rm8, r8
@@ -63,7 +63,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, true, M_NONE }, // 3A CMP r8, rm8
 	{ A_NONE, true, M_NONE }, // 3B CMP r32, rm32
 	{ A_NONE, false, M_BYTE }, // 3C CMP al, imm8
-	{ A_NONE, false, M_ZORD }, // 3D CMP eax, imm32
+	{ A_NONE, false, M_VORD }, // 3D CMP eax, imm32
 	{ A_PREFIX }, // 3E DS prefix
 	{ A_NONE, false, M_NONE }, // 3F AAS
 	{ A_NONE, false, M_NONE }, // 40 INC eax
@@ -106,8 +106,8 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_PREFIX }, // 65 GS prefix
 	{ A_PREFIX }, // 66 Operand-size prefix
 	{ A_PREFIX }, // 67 Address-size prefix
-	{ A_NONE, false, M_ZORD }, // 68 PUSH i32
-	{ A_NONE, true, M_ZORD }, // 69 IMUL i32
+	{ A_NONE, false, M_VORD }, // 68 PUSH i32
+	{ A_NONE, true, M_VORD }, // 69 IMUL i32
 	{ A_NONE, false, M_BYTE }, // 6A PUSH i8
 	{ A_NONE, true, M_BYTE }, // 6B IMUL i8
 	{ A_NONE, false, M_NONE }, // 6C INSB
@@ -131,7 +131,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, false, M_BYTE }, // 7E JLE/JNG
 	{ A_NONE, false, M_BYTE }, // 7F JNLE/JG
 	{ A_NONE, true, M_BYTE }, // 80 Grp1 rm8, imm8
-	{ A_NONE, true, M_ZORD }, // 81 Grp1 rm32, imm32
+	{ A_NONE, true, M_VORD }, // 81 Grp1 rm32, imm32
 	{ A_NONE, true, M_BYTE }, // 82 Grp1 rm8, imm8 (duplicate of 80, #UD in long mode)
 	{ A_NONE, true, M_BYTE }, // 83 Grp1 rm32, imm8
 	{ A_NONE, true, M_NONE }, // 84 TEST rm8, r8
@@ -171,7 +171,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, false, M_NONE }, // A6 CMPSB
 	{ A_NONE, false, M_NONE }, // A7 CMPSD
 	{ A_NONE, false, M_BYTE }, // A8 TEST al, imm8
-	{ A_NONE, false, M_ZORD }, // A9 TEST eax, imm32
+	{ A_NONE, false, M_VORD }, // A9 TEST eax, imm32
 	{ A_NONE, false, M_NONE }, // AA STOSB
 	{ A_NONE, false, M_NONE }, // AB STOSD
 	{ A_NONE, false, M_NONE }, // AC LODSB
@@ -201,7 +201,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, true, M_NONE }, // C4 LES r16, mem16+16
 	{ A_NONE, true, M_NONE }, // C5 LDS r16, mem16+16
 	{ A_NONE, true, M_BYTE }, // C6 MOV rm8, imm8
-	{ A_NONE, true, M_ZORD }, // C7 MOV rm32, imm32
+	{ A_NONE, true, M_VORD }, // C7 MOV rm32, imm32
 	{ A_NONE, false, M_THREE }, // C8 ENTER imm16, imm8
 	{ A_NONE, false, M_NONE }, // C9 LEAVE
 	{ A_NONE, false, M_WORD }, // CA RETF imm16
@@ -234,8 +234,8 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, false, M_BYTE }, // E5 IN eax, imm8
 	{ A_NONE, false, M_BYTE }, // E6 OUT imm8, al
 	{ A_NONE, false, M_BYTE }, // E7 OUT imm8, eax
-	{ A_NONE, false, M_ZORD }, // E8 CALL near
-	{ A_NONE, false, M_ZORD }, // E9 JMP near
+	{ A_NONE, false, M_VORD }, // E8 CALL near
+	{ A_NONE, false, M_VORD }, // E9 JMP near
 	{ A_NONE, false, M_FAR }, // EA JMP far
 	{ A_NONE, false, M_BYTE }, // EB JMP short
 	{ A_NONE, false, M_NONE }, // EC IN al, dx
@@ -249,7 +249,7 @@ static struct OpBasicInfo op_basic_info[] = {
 	{ A_NONE, false, M_NONE }, // F4 HLT
 	{ A_NONE, false, M_NONE }, // F5 CMC
 	{ A_GRP, true, M_BYTE }, // F6 Grp3 rm8 (/0 -> imm8)
-	{ A_GRP, true, M_ZORD }, // F7 Grp3 rm32 (/0 -> imm32)
+	{ A_GRP, true, M_VORD }, // F7 Grp3 rm32 (/0 -> imm32)
 	{ A_NONE, false, M_NONE }, // F8 CLC
 	{ A_NONE, false, M_NONE }, // F9 STC
 	{ A_NONE, false, M_NONE }, // FA CLI

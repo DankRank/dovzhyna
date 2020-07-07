@@ -16,8 +16,7 @@ enum ImmType {
 	M_WORD, // 2 bytes
 	M_THREE, // 3 bytes, used by ENTER instruction
 
-	M_VORD, // word or dword [or qword] depending on operand size
-	M_ZORD = M_VORD, // word or dword depending on operand size (for now equal to VORD)
+	M_VORD, // word or dword depending on operand size
 
 	M_MEMORY, // address size
 	M_FAR, // far address (M_WORD + M_MEMORY)
