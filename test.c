@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	int lastop = 0;
 	for (int i = 0; i < filesize+15;) {
 		int status = dovzhyna_decode(&os, (uint8_t*)text + i, 1);
-		if (status == S_ERROR) {
+		if (status) {
 			printf("error %.8X\n", i);
 			i++;
 			continue;

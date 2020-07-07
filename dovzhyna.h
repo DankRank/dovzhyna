@@ -41,11 +41,6 @@ struct OpState {
 	
 };
 
-enum {
-	S_SUCCESS = 0,
-	S_ERROR = 1
-};
-
 int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32);
 
 #ifdef __cplusplus

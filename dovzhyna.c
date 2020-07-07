@@ -37,7 +37,7 @@ static struct OpBasicInfo op_basic_info(int op) {
 }
 #define op_basic_info_0f(op) op_basic_info(256+(op))
 
-#define CHECK_INDEX(x,y) if(x > 15-y) return S_ERROR
+#define CHECK_INDEX(x,y) if(x > 15-y) return 1
 int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 {
 	memcpy(op->data, data, 15);
@@ -100,7 +100,7 @@ sproc_cont:
 	}
 
 	if (op->basic.attrib == A_UD) {
-		return S_ERROR;
+		return 1;
 	}
 	
 sproc_modrm:
@@ -162,5 +162,5 @@ sproc_modrm:
 		CHECK_INDEX(op->index, 0);
 	}
 	
-	return S_SUCCESS;
+	return 0;
 }
