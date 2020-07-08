@@ -145,11 +145,15 @@ sproc_modrm:
 		if (op->basic.attrib == A_GRP) {
 			// fixup for some of the Grp's
 			switch (op->opcode) {
-			case 0xF6:
-			case 0xF7:
-				if (modrm & 0x38) {
+			case 0xF6: /* Grp3 rm8 [imm8] */
+			case 0xF7: /* Grp3 rm32 [imm32] */
+				/* Unlike the rest of instructions in this group, /0 (TEST)
+				 * has an immediate operand. /1 is actually an alias to /0,
+				 * but Intel won't tell you this. In the table, these are
+				 * encoded according to /0 and /1, so for everything else we
+				 * have to set immed to none. */
+				if ((modrm & 0x38) > 0x10) /* reg > /1 */
 					op->basic.immed = M_NONE;
-				}
 				break;
 			}
 		}

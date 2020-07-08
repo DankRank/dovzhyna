@@ -244,8 +244,8 @@
   F3 prefix              # REP/REPE prefix
   F4                     # HLT
   F5                     # CMC
-  F6 grp modrm byte      # Grp3 rm8 (/0 -> imm8)
-  F7 grp modrm vord      # Grp3 rm32 (/0 -> imm32)
+  F6 grp modrm byte      # Grp3 rm8 (/0 -> imm8, /1 undocumented alias to /0)
+  F7 grp modrm vord      # Grp3 rm32 (/0 -> imm32, /1 undocumented alias to /0)
   F8                     # CLC
   F9                     # STC
   FA                     # CLI
