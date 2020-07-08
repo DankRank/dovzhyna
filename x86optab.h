@@ -1,4 +1,4 @@
-static const char x86optab[512] = 
+static const char x86optab[512] =
 "HHHHAD@@HHHHAD@PHHHHAD@@HHHHAD@@HHHHADP@HHHHADP@HHHHADP@HHHHADP@"
 "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@HHPPPPDLAI@@@@AAAAAAAAAAAAAAAA"
 "ILIIHHHHHHHHHHHH@@@@@@@@@@F@@@@@EEEE@@@@AD@@@@@@AAAAAAAADDDDDDDD"

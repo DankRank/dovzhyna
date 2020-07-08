@@ -254,7 +254,7 @@
   FD                     # STD
   FE modrm               # Grp4 rm8 (inc/dec)
   FF modrm               # Grp4 rm32 (inc/dec + indirect call/jmp and imm push)
-0F00 modrm               # Grp6 
+0F00 modrm               # Grp6
 0F01 modrm               # Grp7
 0F02 modrm               # LAR
 0F03 modrm               # LSL

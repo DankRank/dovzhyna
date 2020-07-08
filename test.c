@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 			}
 			if(i==0) printf("maybe %.8X\n", i);
 		}
-		
+
 		//printf("%.8X: ",i);
 		//printhex(os.data, os.index);
 		//printf("\n");
@@ -62,6 +62,6 @@ int main(int argc, char **argv)
 		i += os.index;
 		lastop = os.opcode;
 	}
-	
+
 	free(text);
 }

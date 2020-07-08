@@ -12,7 +12,7 @@ int main()
 	char line[512];
 	int op = 0;
 	int errors = 0;
-	printf("static const char x86optab[512] = \n\"");
+	printf("static const char x86optab[512] =\n\"");
 	while (fgets(line, 512, stdin)) {
 		char *tok;
 		char byte = 0;
