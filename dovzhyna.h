@@ -29,16 +29,12 @@ struct OpBasicInfo {
 };
 
 struct OpState {
-	uint8_t data[15];
 	int index;
-
-	int bits32;
 
 	struct OpBasicInfo basic;
 	int pfx_rep, pfx_seg, pfx_opsize, pfx_memsize;
 	int opcode, modrm, imm;
 	// imm is offset to immediate data
-	
 };
 
 int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32);

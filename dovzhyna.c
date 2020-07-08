@@ -41,15 +41,13 @@ static struct OpBasicInfo op_basic_info(int op) {
 #define CHECK_INDEX(x,y) if(x > 15-y) return 1
 int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 {
-	memcpy(op->data, data, 15);
 	op->index = 0;
 	op->pfx_rep = op->pfx_seg = op->pfx_opsize = op->pfx_memsize = 0;
-	op->bits32 = bits32;
 	
 	uint8_t code = 0;
 sproc_init:
 	CHECK_INDEX(op->index, 1);
-	code = op->data[op->index++];
+	code = data[op->index++];
 	op->opcode = code;
 
 	op->basic = op_basic_info(code);
@@ -82,13 +80,13 @@ sproc_init:
 	
 sproc_cont:
 	CHECK_INDEX(op->index, 1);
-	code = op->data[op->index++];
+	code = data[op->index++];
 	op->opcode = (op->opcode << 8) | code;
 	op->basic = op_basic_info_0f(code);
 
 	if (op->basic.attrib == A_PREFIX) {
 		CHECK_INDEX(op->index, 1);
-		code = op->data[op->index++];
+		code = data[op->index++];
 		if (op->opcode == 0x0F38) {
 			op->basic = (struct OpBasicInfo){ A_NONE, 1, M_NONE };
 		}
@@ -107,13 +105,13 @@ sproc_cont:
 sproc_modrm:
 	if (op->basic.modrm) {
 		CHECK_INDEX(op->index, 1);
-		uint8_t modrm = op->data[op->index++];
+		uint8_t modrm = data[op->index++];
 		op->modrm = modrm;
 
-		if (lxor(op->bits32, op->pfx_memsize)) { // 32-bit addressing
+		if (lxor(bits32, op->pfx_memsize)) { // 32-bit addressing
 			if (modrm < 0xC0 && (modrm & 7) == 4) {
 				CHECK_INDEX(op->index, 1);
-				uint8_t sib = op->data[op->index++];
+				uint8_t sib = data[op->index++];
 				if (modrm < 0x40 && (sib & 7) == 5) {
 					CHECK_INDEX(op->index, 4);
 					op->index += 4;
@@ -159,7 +157,7 @@ sproc_modrm:
 	
 	if (op->basic.immed) {
 		op->imm = op->index;
-		op->index += get_imm_size(op->basic.immed, lxor(op->bits32, op->pfx_opsize), lxor(op->bits32, op->pfx_memsize));
+		op->index += get_imm_size(op->basic.immed, lxor(bits32, op->pfx_opsize), lxor(bits32, op->pfx_memsize));
 		CHECK_INDEX(op->index, 0);
 	}
 	
