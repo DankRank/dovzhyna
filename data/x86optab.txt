@@ -36,7 +36,7 @@
   23 modrm               # AND r32, rm32
   24 byte                # AND al, imm8
   25 vord                # AND eax, imm32
-  26 prefix              # ES prefix
+  26                     # ES prefix
   27                     # DAA
   28 modrm               # SUB rm8, r8
   29 modrm               # SUB rm32, r32
@@ -44,7 +44,7 @@
   2B modrm               # SUB r32, rm32
   2C byte                # SUB al, imm8
   2D vord                # SUB eax, imm32
-  2E prefix              # CS prefix
+  2E                     # CS prefix
   2F                     # DAS
   30 modrm               # XOR rm8, r8
   31 modrm               # XOR rm32, r32
@@ -52,7 +52,7 @@
   33 modrm               # XOR r32, rm32
   34 byte                # XOR al, imm8
   35 vord                # XOR eax, imm32
-  36 prefix              # SS prefix
+  36                     # SS prefix
   37                     # AAA
   38 modrm               # CMP rm8, r8
   39 modrm               # CMP rm32, r32
@@ -60,7 +60,7 @@
   3B modrm               # CMP r32, rm32
   3C byte                # CMP al, imm8
   3D vord                # CMP eax, imm32
-  3E prefix              # DS prefix
+  3E                     # DS prefix
   3F                     # AAS
   40                     # INC eax
   41                     # INC ecx
@@ -98,10 +98,10 @@
   61                     # POPAD
   62 modrm               # BOUND (EVEX 4-byte)
   63 modrm               # ARPL
-  64 prefix              # FS prefix
-  65 prefix              # GS prefix
-  66 prefix              # Operand-size prefix
-  67 prefix              # Address-size prefix
+  64                     # FS prefix
+  65                     # GS prefix
+  66                     # Operand-size prefix
+  67                     # Address-size prefix
   68 vord                # PUSH i32
   69 modrm vord          # IMUL i32
   6A byte                # PUSH i8
@@ -238,10 +238,10 @@
   ED                     # IN eax, dx
   EE                     # OUT dx, al
   EF                     # OUT dx, eax
-  F0 prefix              # LOCK prefix
+  F0                     # LOCK prefix
   F1                     # ICEBP (aka INT 1, undocumented)
-  F2 prefix              # REPNE prefix
-  F3 prefix              # REP/REPE prefix
+  F2                     # REPNE prefix
+  F3                     # REP/REPE prefix
   F4                     # HLT
   F5                     # CMC
   F6 modrm byte          # Grp3 rm8 (/0 -> imm8, /1 undocumented alias to /0)
@@ -310,9 +310,9 @@
 0F35                     # SYSEXIT
 0F36 ud
 0F37                     # GETSEC
-0F38 prefix              # 3-byte
+0F38                     # 3-byte
 0F39 ud
-0F3A prefix              # 3-byte
+0F3A                     # 3-byte
 0F3B ud
 0F3C ud
 0F3D ud

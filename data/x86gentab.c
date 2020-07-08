@@ -3,7 +3,7 @@
 
 /* format
  * 01aamiii
- * aa 1=prefix, 2=grp, 3=ud
+ * aa 1=ud
  * m 1=modrm
  * iii 1=byte, 2=word, 3=three, 4=vord, 5=memory, 6=far
  */
@@ -42,8 +42,7 @@ int main()
 				CHECK_ADD("memory",  5,  7)
 				CHECK_ADD("far",     6,  7)
 				CHECK_ADD("modrm",   8,  8)
-				CHECK_ADD("prefix", 16, 48)
-				CHECK_ADD("ud",     32, 48)
+				CHECK_ADD("ud",     16, 48)
 				fprintf(stderr, "Unknown token: '%s'\n", tok), errors|=1;
 			}
 			if (byte == '\\') /* impossible combination (prefix+modrm+vord), but ok */

@@ -72,61 +72,65 @@ int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 {
 	op->index = 0;
 	op->pfx_rep = op->pfx_seg = op->pfx_opsize = op->pfx_memsize = 0;
-
+	op->opcode = -1;
 	uint8_t code = 0;
-sproc_init:
-	CHECK_INDEX(op->index, 1);
-	code = data[op->index++];
-	op->opcode = code;
 
-	op->basic = op_basic_info(code);
-	if (op->basic.attrib == A_PREFIX) {
+	/* legacy prefixes */
+	while (op->opcode < 0) {
+		CHECK_INDEX(op->index, 1);
+		code = data[op->index++];
+
 		switch (code) {
-		case 0xF0: // LOCK
-		case 0xF2: // REPNE
-		case 0xF3: // REP
+		case 0xF0: /* LOCK */
+		case 0xF2: /* REPNE */
+		case 0xF3: /* REP */
 			op->pfx_rep = code; break;
-		case 0x26: // ES
-		case 0x2E: // CS
-		case 0x36: // SS
-		case 0x3E: // DS
-		case 0x64: // FS
-		case 0x65: // GS
+		case 0x26: /* ES */
+		case 0x2E: /* CS */
+		case 0x36: /* SS */
+		case 0x3E: /* DS */
+		case 0x64: /* FS */
+		case 0x65: /* GS */
 			op->pfx_seg = code; break;
-		case 0x66: // operand size prefix
+		case 0x66: /* operand size prefix */
 			op->pfx_opsize = code; break;
-		case 0x67: // address size prefix
+		case 0x67: /* address size prefix */
 			op->pfx_memsize = code; break;
+		default:
+			op->opcode = code; break;
 		}
-
-		goto sproc_init;
 	}
 
+	/* opcode */
 	if (code == 0x0F) { /* 2-byte opcode prefix */
 		CHECK_INDEX(op->index, 1);
 		code = data[op->index++];
 		op->opcode = (op->opcode << 8) | code;
-		op->basic = op_basic_info_0f(code);
 
-		if (op->basic.attrib == A_PREFIX) {
+		if (code == 0x38 || code == 0x3A) { /* 3-byte opcode prefix */
 			CHECK_INDEX(op->index, 1);
 			code = data[op->index++];
-			if (op->opcode == 0x0F38) {
-				op->basic = (struct OpBasicInfo){ A_NONE, 1, M_NONE };
-			}
-			else if (op->opcode == 0x0F3A) {
-				op->basic = (struct OpBasicInfo){ A_NONE, 1, M_BYTE };
-				// 66 0f 3a 4a/4b/4c - don't have immed, but only available
-				// using (E)VEX form
-			}
 			op->opcode = (op->opcode << 8) | code;
+
+			op->basic.attrib = A_NONE;
+			op->basic.modrm = 1;
+
+			if ((op->opcode & 0xFFFF00) == 0x0F3800) {
+				op->basic.immed = M_NONE;
+			} else { /* 0x0F3A00 */
+				op->basic.immed = M_BYTE;
+			}
+		} else {
+			op->basic = op_basic_info_0f(code);
 		}
 
-		if (op->basic.attrib == A_UD) {
+		if (op->basic.attrib == A_UD)
 			return 1;
-		}
+	} else {
+		op->basic = op_basic_info(code);
 	}
 
+	/* modrm */
 	if (op->basic.modrm) {
 		op->modrm_off = op->index;
 		CHECK_INDEX(op->index, 1);
@@ -161,6 +165,7 @@ sproc_init:
 		}
 	}
 
+	/* immed */
 	if (op->basic.immed) {
 		op->imm_off = op->index;
 		op->index += get_imm_size(op->basic.immed, lxor(bits32, op->pfx_opsize), lxor(bits32, op->pfx_memsize));

@@ -4,7 +4,6 @@ extern "C" {
 #endif
 enum InsAttrib{
 	A_NONE,
-	A_PREFIX,
 	A_UD, // undefined instruction.
 	// NOTE: No, UD2 is not an undefined instruction, it is defined to be an undefined instruction.
 };
