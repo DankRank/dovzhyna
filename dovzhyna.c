@@ -143,8 +143,17 @@ sproc_modrm:
 		op->index += len;
 
 		if (op->basic.attrib == A_GRP) {
-			// fixup for some of the Grp's
 			switch (op->opcode) {
+			case 0xC5: /* LDS (VEX 2-byte) */
+			case 0xC4: /* LES (VEX 3-byte) */
+			case 0x62: /* BOUND (EVEX 4-byte) */
+				if ((modrm & 0xC0) == 0xC0)
+					return 1; /* Unsupported for now */
+				break;
+			case 0x8F: /* Grp1A (XOP prefix) */
+				if ((modrm & 0x38) != 0) /* reg != /0 */
+					return 1; /* Unsupported */
+				break;
 			case 0xF6: /* Grp3 rm8 [imm8] */
 			case 0xF7: /* Grp3 rm32 [imm32] */
 				/* Unlike the rest of instructions in this group, /0 (TEST)
