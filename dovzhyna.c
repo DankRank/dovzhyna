@@ -43,7 +43,7 @@ int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 {
 	op->index = 0;
 	op->pfx_rep = op->pfx_seg = op->pfx_opsize = op->pfx_memsize = 0;
-	
+
 	uint8_t code = 0;
 sproc_init:
 	CHECK_INDEX(op->index, 1);
@@ -71,13 +71,13 @@ sproc_init:
 		case 0x0F: // 2-byte opcode prefix
 			goto sproc_cont;
 		}
-		
+
 		goto sproc_init;
 	}
-	
+
 	// not a prefix
 	goto sproc_modrm;
-	
+
 sproc_cont:
 	CHECK_INDEX(op->index, 1);
 	code = data[op->index++];
@@ -101,7 +101,7 @@ sproc_cont:
 	if (op->basic.attrib == A_UD) {
 		return 1;
 	}
-	
+
 sproc_modrm:
 	if (op->basic.modrm) {
 		CHECK_INDEX(op->index, 1);
@@ -141,7 +141,7 @@ sproc_modrm:
 			CHECK_INDEX(op->index, 1);
 			op->index += 1;
 		}
-		
+
 		if (op->basic.attrib == A_GRP) {
 			// fixup for some of the Grp's
 			switch (op->opcode) {
@@ -154,12 +154,12 @@ sproc_modrm:
 			}
 		}
 	}
-	
+
 	if (op->basic.immed) {
 		op->imm = op->index;
 		op->index += get_imm_size(op->basic.immed, lxor(bits32, op->pfx_opsize), lxor(bits32, op->pfx_memsize));
 		CHECK_INDEX(op->index, 0);
 	}
-	
+
 	return 0;
 }
