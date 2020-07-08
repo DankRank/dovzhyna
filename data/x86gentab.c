@@ -43,8 +43,7 @@ int main()
 				CHECK_ADD("far",     6,  7)
 				CHECK_ADD("modrm",   8,  8)
 				CHECK_ADD("prefix", 16, 48)
-				CHECK_ADD("grp",    32, 48)
-				CHECK_ADD("ud",     48, 48)
+				CHECK_ADD("ud",     32, 48)
 				fprintf(stderr, "Unknown token: '%s'\n", tok), errors|=1;
 			}
 			if (byte == '\\') /* impossible combination (prefix+modrm+vord), but ok */

@@ -5,7 +5,6 @@ extern "C" {
 enum InsAttrib{
 	A_NONE,
 	A_PREFIX,
-	A_GRP, /* special handling required (Grp3 and (E)VEX) */
 	A_UD, // undefined instruction.
 	// NOTE: No, UD2 is not an undefined instruction, it is defined to be an undefined instruction.
 };

@@ -96,7 +96,7 @@
   5F                     # POP edi
   60                     # PUSHAD
   61                     # POPAD
-  62 grp modrm           # BOUND (EVEX 4-byte)
+  62 modrm               # BOUND (EVEX 4-byte)
   63 modrm               # ARPL
   64 prefix              # FS prefix
   65 prefix              # GS prefix
@@ -141,7 +141,7 @@
   8C modrm               # MOV rm32, s16
   8D modrm               # LEA r32, mem
   8E modrm               # MOV s16, rm16
-  8F grp modrm           # Grp1A (/0 POP, otherwise #UD) rm32 (XOP prefix)
+  8F modrm               # Grp1A (/0 POP, otherwise #UD) rm32 (XOP prefix)
   90                     # NOP
   91                     # XCHG eax,ecx
   92                     # XCHG eax,edx
@@ -194,8 +194,8 @@
   C1 modrm byte          # Grp2 rm32, imm8
   C2 word                # RETN imm16
   C3                     # RETN
-  C4 grp modrm           # LES r16, mem16+16 (VEX 3-byte)
-  C5 grp modrm           # LDS r16, mem16+16 (VEX 2-byte)
+  C4 modrm               # LES r16, mem16+16 (VEX 3-byte)
+  C5 modrm               # LDS r16, mem16+16 (VEX 2-byte)
   C6 modrm byte          # MOV rm8, imm8
   C7 modrm vord          # MOV rm32, imm32
   C8 three               # ENTER imm16, imm8
@@ -244,8 +244,8 @@
   F3 prefix              # REP/REPE prefix
   F4                     # HLT
   F5                     # CMC
-  F6 grp modrm byte      # Grp3 rm8 (/0 -> imm8, /1 undocumented alias to /0)
-  F7 grp modrm vord      # Grp3 rm32 (/0 -> imm32, /1 undocumented alias to /0)
+  F6 modrm byte          # Grp3 rm8 (/0 -> imm8, /1 undocumented alias to /0)
+  F7 modrm vord          # Grp3 rm32 (/0 -> imm32, /1 undocumented alias to /0)
   F8                     # CLC
   F9                     # STC
   FA                     # CLI
