@@ -38,7 +38,36 @@ static struct OpBasicInfo op_basic_info(int op) {
 }
 #define op_basic_info_0f(op) op_basic_info(256+(op))
 
-#define CHECK_INDEX(x,y) if(x > 15-y) return 1
+/* If sib is out of bounds, you can pass an arbitrary value. */
+static int modrm_length(uint8_t modrm, uint8_t sib, int memsize)
+{
+	int len = 0;
+
+	if (memsize) { /* 32-bit addressing */
+		if (modrm < 0xC0 && (modrm & 7) == 4) {
+			len += 1; /* sib byte */
+			if (modrm < 0x40 && (sib & 7) == 5)
+				len += 4;
+		}
+		if (modrm >= 0x80 && modrm < 0xC0)
+			len += 4;
+		else if ((modrm & 0xC7) == 5)
+			len += 4;
+	}
+	else {
+		if (modrm >= 0x80 && modrm < 0xC0)
+			len += 2;
+		else if ((modrm & 0xC7) == 6)
+			len += 2;
+	}
+
+	if (modrm >= 0x40 && modrm < 0x80)
+		len += 1;
+
+	return len;
+}
+
+#define CHECK_INDEX(x,y) if(x > MAXLEN_X86-y) return 1
 int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 {
 	op->index = 0;
@@ -106,41 +135,12 @@ sproc_modrm:
 	if (op->basic.modrm) {
 		CHECK_INDEX(op->index, 1);
 		uint8_t modrm = data[op->index++];
+		uint8_t sib = op->index != MAXLEN_X86 ? data[op->index] : 0;
 		op->modrm = modrm;
 
-		if (lxor(bits32, op->pfx_memsize)) { // 32-bit addressing
-			if (modrm < 0xC0 && (modrm & 7) == 4) {
-				CHECK_INDEX(op->index, 1);
-				uint8_t sib = data[op->index++];
-				if (modrm < 0x40 && (sib & 7) == 5) {
-					CHECK_INDEX(op->index, 4);
-					op->index += 4;
-				}
-			}
-			if (modrm >= 0x80 && modrm < 0xC0) {
-				CHECK_INDEX(op->index, 4);
-				op->index += 4;
-			}
-			else if ((modrm & 0xC7) == 5) {
-				CHECK_INDEX(op->index, 4);
-				op->index += 4;
-			}
-		}
-		else {
-			if (modrm >= 0x80 && modrm < 0xC0) {
-				CHECK_INDEX(op->index, 2);
-				op->index += 2;
-			}
-			else if ((modrm & 0xC7) == 6) {
-				CHECK_INDEX(op->index, 2);
-				op->index += 2;
-			}
-		}
-
-		if (modrm >= 0x40 && modrm < 0x80) {
-			CHECK_INDEX(op->index, 1);
-			op->index += 1;
-		}
+		int len = modrm_length(modrm, sib, lxor(bits32, op->pfx_memsize));
+		CHECK_INDEX(op->index, len);
+		op->index += len;
 
 		if (op->basic.attrib == A_GRP) {
 			// fixup for some of the Grp's

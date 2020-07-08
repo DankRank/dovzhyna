@@ -37,6 +37,7 @@ struct OpState {
 	// imm is offset to immediate data
 };
 
+#define MAXLEN_X86 15
 int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32);
 
 #ifdef __cplusplus
