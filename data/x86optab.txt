@@ -13,7 +13,7 @@
   0C byte                # OR al, imm8
   0D vord                # OR eax, imm32
   0E                     # PUSH CS
-  0F prefix              # 2-byte escape
+  0F                     # 2-byte escape
   10 modrm               # ADC rm8, r8
   11 modrm               # ADC rm32, r32
   12 modrm               # ADC r8, rm8

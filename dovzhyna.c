@@ -97,41 +97,36 @@ sproc_init:
 			op->pfx_opsize = code; break;
 		case 0x67: // address size prefix
 			op->pfx_memsize = code; break;
-		case 0x0F: // 2-byte opcode prefix
-			goto sproc_cont;
 		}
 
 		goto sproc_init;
 	}
 
-	// not a prefix
-	goto sproc_modrm;
-
-sproc_cont:
-	CHECK_INDEX(op->index, 1);
-	code = data[op->index++];
-	op->opcode = (op->opcode << 8) | code;
-	op->basic = op_basic_info_0f(code);
-
-	if (op->basic.attrib == A_PREFIX) {
+	if (code == 0x0F) { /* 2-byte opcode prefix */
 		CHECK_INDEX(op->index, 1);
 		code = data[op->index++];
-		if (op->opcode == 0x0F38) {
-			op->basic = (struct OpBasicInfo){ A_NONE, 1, M_NONE };
-		}
-		else if (op->opcode == 0x0F3A) {
-			op->basic = (struct OpBasicInfo){ A_NONE, 1, M_BYTE };
-			// 66 0f 3a 4a/4b/4c - don't have immed, but only available
-			// using (E)VEX form
-		}
 		op->opcode = (op->opcode << 8) | code;
+		op->basic = op_basic_info_0f(code);
+
+		if (op->basic.attrib == A_PREFIX) {
+			CHECK_INDEX(op->index, 1);
+			code = data[op->index++];
+			if (op->opcode == 0x0F38) {
+				op->basic = (struct OpBasicInfo){ A_NONE, 1, M_NONE };
+			}
+			else if (op->opcode == 0x0F3A) {
+				op->basic = (struct OpBasicInfo){ A_NONE, 1, M_BYTE };
+				// 66 0f 3a 4a/4b/4c - don't have immed, but only available
+				// using (E)VEX form
+			}
+			op->opcode = (op->opcode << 8) | code;
+		}
+
+		if (op->basic.attrib == A_UD) {
+			return 1;
+		}
 	}
 
-	if (op->basic.attrib == A_UD) {
-		return 1;
-	}
-
-sproc_modrm:
 	if (op->basic.modrm) {
 		op->modrm_off = op->index;
 		CHECK_INDEX(op->index, 1);
