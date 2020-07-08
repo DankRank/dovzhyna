@@ -33,8 +33,7 @@ struct OpState {
 
 	struct OpBasicInfo basic;
 	int pfx_rep, pfx_seg, pfx_opsize, pfx_memsize;
-	int opcode, modrm, imm;
-	// imm is offset to immediate data
+	int opcode, modrm_off, imm_off;
 };
 
 #define MAXLEN_X86 15

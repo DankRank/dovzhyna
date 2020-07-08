@@ -133,10 +133,10 @@ sproc_cont:
 
 sproc_modrm:
 	if (op->basic.modrm) {
+		op->modrm_off = op->index;
 		CHECK_INDEX(op->index, 1);
 		uint8_t modrm = data[op->index++];
 		uint8_t sib = op->index != MAXLEN_X86 ? data[op->index] : 0;
-		op->modrm = modrm;
 
 		int len = modrm_length(modrm, sib, lxor(bits32, op->pfx_memsize));
 		CHECK_INDEX(op->index, len);
@@ -147,7 +147,7 @@ sproc_modrm:
 			switch (op->opcode) {
 			case 0xF6:
 			case 0xF7:
-				if (op->modrm & 0x38) {
+				if (modrm & 0x38) {
 					op->basic.immed = M_NONE;
 				}
 				break;
@@ -156,7 +156,7 @@ sproc_modrm:
 	}
 
 	if (op->basic.immed) {
-		op->imm = op->index;
+		op->imm_off = op->index;
 		op->index += get_imm_size(op->basic.immed, lxor(bits32, op->pfx_opsize), lxor(bits32, op->pfx_memsize));
 		CHECK_INDEX(op->index, 0);
 	}
