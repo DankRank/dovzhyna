@@ -4,6 +4,7 @@
 
 #include "x86optab.h"
 
+#define lxor(a,b) (!(a) != !(b))
 static int get_imm_size(enum ImmType imm, int opsize, int memsize)
 {
 	switch (imm) {
@@ -42,7 +43,7 @@ int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 {
 	memcpy(op->data, data, 15);
 	op->index = 0;
-	op->pfx_rep = op->pfx_seg = op->pfx_opsize = op->pfx_memsize = -1;
+	op->pfx_rep = op->pfx_seg = op->pfx_opsize = op->pfx_memsize = 0;
 	op->bits32 = bits32;
 	
 	uint8_t code = 0;
@@ -109,7 +110,7 @@ sproc_modrm:
 		uint8_t modrm = op->data[op->index++];
 		op->modrm = modrm;
 
-		if (op->bits32 != (op->pfx_memsize != -1)) { // 32-bit addressing
+		if (lxor(op->bits32, op->pfx_memsize)) { // 32-bit addressing
 			if (modrm < 0xC0 && (modrm & 7) == 4) {
 				CHECK_INDEX(op->index, 1);
 				uint8_t sib = op->data[op->index++];
@@ -158,7 +159,7 @@ sproc_modrm:
 	
 	if (op->basic.immed) {
 		op->imm = op->index;
-		op->index += get_imm_size(op->basic.immed, op->bits32 != (op->pfx_opsize != -1), op->bits32 != (op->pfx_memsize != -1));
+		op->index += get_imm_size(op->basic.immed, lxor(op->bits32, op->pfx_opsize), lxor(op->bits32, op->pfx_memsize));
 		CHECK_INDEX(op->index, 0);
 	}
 	
