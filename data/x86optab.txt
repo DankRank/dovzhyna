@@ -267,9 +267,9 @@
 0F0A ud
 0F0B                     # UD2
 0F0C ud
-0F0D modrm               # PREFETCHW
-0F0E ud
-0F0F ud
+0F0D modrm               # (3DNow!) PREFETCH/PREFETCHW
+0F0E                     # (3DNow!) FEMMS
+0F0F modrm byte          # (3DNow!) 3dnow opcode map
 0F10 modrm               # MOVUPS r, rm
 0F11 modrm               # MOVUPS rm, r
 0F12 modrm               # MOVLPS r, m
