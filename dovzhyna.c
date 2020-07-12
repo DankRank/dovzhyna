@@ -37,6 +37,8 @@ static struct OpBasicInfo op_basic_info(int op) {
 	return basic;
 }
 #define op_basic_info_0f(op) op_basic_info(256+(op))
+static const struct OpBasicInfo op_basic_info_0f38 = { A_NONE, 1, M_NONE };
+static const struct OpBasicInfo op_basic_info_0f3a = { A_NONE, 1, M_BYTE };
 
 /* If sib is out of bounds, you can pass an arbitrary value. */
 static int modrm_length(uint8_t modrm, uint8_t sib, int memsize)
@@ -72,11 +74,11 @@ int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 {
 	op->index = 0;
 	op->pfx_rep = op->pfx_seg = op->pfx_opsize = op->pfx_memsize = 0;
-	op->opcode = -1;
 	uint8_t code = 0;
+	int map = -1;
 
 	/* legacy prefixes */
-	while (op->opcode < 0) {
+	while (map != 0) {
 		CHECK_INDEX(op->index, 1);
 		code = data[op->index++];
 
@@ -97,38 +99,44 @@ int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 		case 0x67: /* address size prefix */
 			op->pfx_memsize = code; break;
 		default:
-			op->opcode = code; break;
+			map = 0; break;
 		}
 	}
 
-	/* opcode */
+	/* figure out the opcode map */
 	if (code == 0x0F) { /* 2-byte opcode prefix */
+		map = 1;
 		CHECK_INDEX(op->index, 1);
 		code = data[op->index++];
-		op->opcode = (op->opcode << 8) | code;
 
 		if (code == 0x38 || code == 0x3A) { /* 3-byte opcode prefix */
+			map = code == 0x38 ? 2 : 3;
 			CHECK_INDEX(op->index, 1);
 			code = data[op->index++];
-			op->opcode = (op->opcode << 8) | code;
-
-			op->basic.attrib = A_NONE;
-			op->basic.modrm = 1;
-
-			if ((op->opcode & 0xFFFF00) == 0x0F3800) {
-				op->basic.immed = M_NONE;
-			} else { /* 0x0F3A00 */
-				op->basic.immed = M_BYTE;
-			}
-		} else {
-			op->basic = op_basic_info_0f(code);
 		}
-
-		if (op->basic.attrib == A_UD)
-			return 1;
-	} else {
-		op->basic = op_basic_info(code);
 	}
+
+	switch (map) {
+	case 0: /* xx */
+		op->opcode = code;
+		op->basic = op_basic_info(code);
+		break;
+	case 1: /* 0F xx */
+		op->opcode = 0x0F00 | code;
+		op->basic = op_basic_info_0f(code);
+		break;
+	case 2: /* 0F 38 xx */
+		op->opcode = 0x0F3800 | code;
+		op->basic = op_basic_info_0f38;
+		break;
+	case 3: /* 0F 3A xx */
+		op->opcode = 0x0F3A00 | code;
+		op->basic = op_basic_info_0f3a;
+		break;
+	}
+
+	if (op->basic.attrib == A_UD)
+		return 1;
 
 	/* modrm */
 	if (op->basic.modrm) {
