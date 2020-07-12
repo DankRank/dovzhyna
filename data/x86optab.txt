@@ -366,7 +366,7 @@
 0F6D modrm               # PUNPCKHQDQ r, rm (prefix 66)
 0F6E modrm               # MOVD r, rm
 0F6F modrm               # MOVQ r, rm
-0F70 modrm               # PSHUFW r, rm
+0F70 modrm byte          # PSHUFW r, rm, imm8
 0F71 modrm byte          # Grp12
 0F72 modrm byte          # Grp13
 0F73 modrm byte          # Grp14
