@@ -39,10 +39,13 @@ int main()
 				CHECK_ADD("word",    2,  7)
 				CHECK_ADD("three",   3,  7)
 				CHECK_ADD("vord",    4,  7)
+				CHECK_ADD("zord",    4,  7)
 				CHECK_ADD("memory",  5,  7)
 				CHECK_ADD("far",     6,  7)
 				CHECK_ADD("modrm",   8,  8)
 				CHECK_ADD("ud",     16, 48)
+				if (!strcmp(tok, "i64")) /* invalid in LM */
+					continue;
 				fprintf(stderr, "Unknown token: '%s'\n", tok), errors|=1;
 			}
 			if (byte == '\\') /* impossible combination (prefix+modrm+vord), but ok */

@@ -3,81 +3,81 @@
   02 modrm               # ADD r8, rm8
   03 modrm               # ADD r32, rm32
   04 byte                # ADD al, imm8
-  05 vord                # ADD eax, imm32
-  06                     # PUSH ES
-  07                     # POP ES
+  05 zord                # ADD eax, imm32
+  06 i64                 # PUSH ES
+  07 i64                 # POP ES
   08 modrm               # OR rm8, r8
   09 modrm               # OR rm32, r32
   0A modrm               # OR r8, rm8
   0B modrm               # OR r32, rm32
   0C byte                # OR al, imm8
-  0D vord                # OR eax, imm32
-  0E                     # PUSH CS
+  0D zord                # OR eax, imm32
+  0E i64                 # PUSH CS
   0F                     # 2-byte escape
   10 modrm               # ADC rm8, r8
   11 modrm               # ADC rm32, r32
   12 modrm               # ADC r8, rm8
   13 modrm               # ADC r32, rm32
   14 byte                # ADC al, imm8
-  15 vord                # ADC eax, imm32
-  16                     # PUSH SS
-  17                     # POP SS
+  15 zord                # ADC eax, imm32
+  16 i64                 # PUSH SS
+  17 i64                 # POP SS
   18 modrm               # SBB rm8, r8
   19 modrm               # SBB rm32, r32
   1A modrm               # SBB r8, rm8
   1B modrm               # SBB r32, rm32
   1C byte                # SBB al, imm8
-  1D vord                # SBB eax, imm32
-  1E                     # PUSH DS
-  1F                     # POP DS
+  1D zord                # SBB eax, imm32
+  1E i64                 # PUSH DS
+  1F i64                 # POP DS
   20 modrm               # AND rm8, r8
   21 modrm               # AND rm32, r32
   22 modrm               # AND r8, rm8
   23 modrm               # AND r32, rm32
   24 byte                # AND al, imm8
-  25 vord                # AND eax, imm32
+  25 zord                # AND eax, imm32
   26                     # ES prefix
-  27                     # DAA
+  27 i64                 # DAA
   28 modrm               # SUB rm8, r8
   29 modrm               # SUB rm32, r32
   2A modrm               # SUB r8, rm8
   2B modrm               # SUB r32, rm32
   2C byte                # SUB al, imm8
-  2D vord                # SUB eax, imm32
+  2D zord                # SUB eax, imm32
   2E                     # CS prefix
-  2F                     # DAS
+  2F i64                 # DAS
   30 modrm               # XOR rm8, r8
   31 modrm               # XOR rm32, r32
   32 modrm               # XOR r8, rm8
   33 modrm               # XOR r32, rm32
   34 byte                # XOR al, imm8
-  35 vord                # XOR eax, imm32
+  35 zord                # XOR eax, imm32
   36                     # SS prefix
-  37                     # AAA
+  37 i64                 # AAA
   38 modrm               # CMP rm8, r8
   39 modrm               # CMP rm32, r32
   3A modrm               # CMP r8, rm8
   3B modrm               # CMP r32, rm32
   3C byte                # CMP al, imm8
-  3D vord                # CMP eax, imm32
+  3D zord                # CMP eax, imm32
   3E                     # DS prefix
-  3F                     # AAS
-  40                     # INC eax
-  41                     # INC ecx
-  42                     # INC edx
-  43                     # INC ebx
-  44                     # INC esp
-  45                     # INC ebp
-  46                     # INC esi
-  47                     # INC edi
-  48                     # DEC eax
-  49                     # DEC ecx
-  4A                     # DEC edx
-  4B                     # DEC ebx
-  4C                     # DEC esp
-  4D                     # DEC ebp
-  4E                     # DEC esi
-  4F                     # DEC edi
+  3F i64                 # AAS
+  40 i64                 # INC eax / REX.----
+  41 i64                 # INC ecx / REX.---B
+  42 i64                 # INC edx / REX.--X-
+  43 i64                 # INC ebx / REX.--XB
+  44 i64                 # INC esp / REX.-R--
+  45 i64                 # INC ebp / REX.-R-B
+  46 i64                 # INC esi / REX.-RX-
+  47 i64                 # INC edi / REX.-RXB
+  48 i64                 # DEC eax / REX.W---
+  49 i64                 # DEC ecx / REX.W--B
+  4A i64                 # DEC edx / REX.W-X-
+  4B i64                 # DEC ebx / REX.W-XB
+  4C i64                 # DEC esp / REX.WR--
+  4D i64                 # DEC ebp / REX.WR-B
+  4E i64                 # DEC esi / REX.WRX-
+  4F i64                 # DEC edi / REX.WRXB
   50                     # PUSH eax
   51                     # PUSH ecx
   52                     # PUSH edx
@@ -94,16 +94,16 @@
   5D                     # POP ebp
   5E                     # POP esi
   5F                     # POP edi
-  60                     # PUSHAD
-  61                     # POPAD
-  62 modrm               # BOUND (EVEX 4-byte)
-  63 modrm               # ARPL
+  60 i64                 # PUSHAD
+  61 i64                 # POPAD
+  62 i64 modrm           # BOUND (L1OM misc prefix / MVEX 4-byte / EVEX 4-byte)
+  63 modrm               # ARPL / MOVSXD
   64                     # FS prefix
   65                     # GS prefix
   66                     # Operand-size prefix
   67                     # Address-size prefix
-  68 vord                # PUSH i32
-  69 modrm vord          # IMUL i32
+  68 zord                # PUSH i32
+  69 modrm zord          # IMUL i32
   6A byte                # PUSH i8
   6B modrm byte          # IMUL i8
   6C                     # INSB
@@ -127,8 +127,8 @@
   7E byte                # JLE/JNG
   7F byte                # JNLE/JG
   80 modrm byte          # Grp1 rm8, imm8
-  81 modrm vord          # Grp1 rm32, imm32
-  82 modrm byte          # Grp1 rm8, imm8 (duplicate of 80, #UD in long mode)
+  81 modrm zord          # Grp1 rm32, imm32
+  82 i64 modrm byte      # Grp1 rm8, imm8 (duplicate of 80, #UD in long mode)
   83 modrm byte          # Grp1 rm32, imm8
   84 modrm               # TEST rm8, r8
   85 modrm               # TEST rm32, r32
@@ -152,7 +152,7 @@
   97                     # XCHG eax,edi
   98                     # CBW
   99                     # CWD
-  9A far                 # CALL far
+  9A i64 far             # CALL far
   9B                     # FWAIT
   9C                     # PUSHFD
   9D                     # POPFD
@@ -167,7 +167,7 @@
   A6                     # CMPSB
   A7                     # CMPSD
   A8 byte                # TEST al, imm8
-  A9 vord                # TEST eax, imm32
+  A9 zord                # TEST eax, imm32
   AA                     # STOSB
   AB                     # STOSD
   AC                     # LODSB
@@ -194,25 +194,25 @@
   C1 modrm byte          # Grp2 rm32, imm8
   C2 word                # RETN imm16
   C3                     # RETN
-  C4 modrm               # LES r16, mem16+16 (VEX 3-byte)
-  C5 modrm               # LDS r16, mem16+16 (VEX 2-byte)
+  C4 i64 modrm           # LES r16, mem16+16 (VEX 3-byte)
+  C5 i64 modrm           # LDS r16, mem16+16 (VEX 2-byte)
   C6 modrm byte          # MOV rm8, imm8
-  C7 modrm vord          # MOV rm32, imm32
+  C7 modrm zord          # MOV rm32, imm32
   C8 three               # ENTER imm16, imm8
   C9                     # LEAVE
   CA word                # RETF imm16
   CB                     # RETF
   CC                     # INT 3
   CD byte                # INT imm8
-  CE                     # INTO
+  CE i64                 # INTO
   CF                     # IRETD
   D0 modrm               # Grp2 rm8, 1
   D1 modrm               # Grp2 rm32, 1
   D2 modrm               # Grp2 rm8, cl
   D3 modrm               # Grp2 rm32, cl
-  D4 byte                # AAM imm8
-  D5 byte                # AAD imm8
-  D6                     # SETALC (undocumented)
+  D4 i64 byte            # AAM imm8
+  D5 i64 byte            # AAD imm8
+  D6 i64                 # SETALC (undocumented) / L1OM vector prefix
   D7                     # XLATB
   D8 modrm               # ESC
   D9 modrm               # ESC
@@ -230,9 +230,9 @@
   E5 byte                # IN eax, imm8
   E6 byte                # OUT imm8, al
   E7 byte                # OUT imm8, eax
-  E8 vord                # CALL near
-  E9 vord                # JMP near
-  EA far                 # JMP far
+  E8 zord                # CALL near
+  E9 zord                # JMP near
+  EA i64 far             # JMP far
   EB byte                # JMP short
   EC                     # IN al, dx
   ED                     # IN eax, dx
@@ -253,7 +253,7 @@
   FC                     # CLD
   FD                     # STD
   FE modrm               # Grp4 rm8 (inc/dec)
-  FF modrm               # Grp4 rm32 (inc/dec + indirect call/jmp and imm push)
+  FF modrm               # Grp5 rm32 (inc/dec + indirect call/jmp and imm push)
 0F00 modrm               # Grp6
 0F01 modrm               # Grp7
 0F02 modrm               # LAR
