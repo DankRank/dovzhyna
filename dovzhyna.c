@@ -41,7 +41,6 @@ struct OpState {
 };
 #define MAXLEN_X86 15
 
-#define lxor(a,b) (!(a) != !(b))
 static int get_imm_size(enum ImmType imm, int opsize, int memsize)
 {
 	switch (imm) {
@@ -106,7 +105,7 @@ static int modrm_length(unsigned char modrm, unsigned char sib, int memsize)
 }
 
 #define CHECK_INDEX(x,y) if(x > MAXLEN_X86-y) return -1
-int dovzhyna(unsigned char *data, int bits32)
+int dovzhyna(unsigned char *data)
 {
 	struct OpState op;
 	op.index = 0;
@@ -182,7 +181,7 @@ int dovzhyna(unsigned char *data, int bits32)
 		unsigned char modrm = data[op.index++];
 		unsigned char sib = op.index != MAXLEN_X86 ? data[op.index] : 0;
 
-		int len = modrm_length(modrm, sib, lxor(bits32, op.pfx_memsize));
+		int len = modrm_length(modrm, sib, !op.pfx_memsize);
 		CHECK_INDEX(op.index, len);
 		op.index += len;
 
@@ -213,7 +212,7 @@ int dovzhyna(unsigned char *data, int bits32)
 	/* immed */
 	if (op.basic.immed) {
 		op.imm_off = op.index;
-		op.index += get_imm_size(op.basic.immed, lxor(bits32, op.pfx_opsize), lxor(bits32, op.pfx_memsize));
+		op.index += get_imm_size(op.basic.immed, !op.pfx_opsize, !op.pfx_memsize);
 		CHECK_INDEX(op.index, 0);
 	}
 
