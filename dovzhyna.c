@@ -1,8 +1,45 @@
-#include <assert.h>
-#include <string.h>
-#include "dovzhyna.h"
+static const char x86optab[512] =
+"HHHHAD@@HHHHAD@@HHHHAD@@HHHHAD@@HHHHAD@@HHHHAD@@HHHHAD@@HHHHAD@@"
+"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@HH@@@@DLAI@@@@AAAAAAAAAAAAAAAA"
+"ILIIHHHHHHHHHHHH@@@@@@@@@@F@@@@@EEEE@@@@AD@@@@@@AAAAAAAADDDDDDDD"
+"IIB@HHILC@B@@A@@HHHHAA@@HHHHHHHHAAAAAAAADDFA@@@@@@@@@@IL@@@@@@HH"
+"HHHHP@@@@@P@PH@IHHHHHHHHHPHHPPPHHHHHPPPPHHHHHHHH@@@@@@P@@P@PPPPP"
+"HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHIIIIHHH@HHPPHHHH"
+"DDDDDDDDDDDDDDDDHHHHHHHHHHHHHHHH@@@HIHPP@@@HIHHHHHHHHHHHHHIHHHHH"
+"HHIHIIIH@@@@@@@@HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH@";
 
-#include "x86optab.h"
+enum InsAttrib{
+	A_NONE,
+	A_UD, // undefined instruction.
+	// NOTE: No, UD2 is not an undefined instruction, it is defined to be an undefined instruction.
+};
+
+enum ImmType {
+	M_NONE,
+	M_BYTE, // 1 byte
+	M_WORD, // 2 bytes
+	M_THREE, // 3 bytes, used by ENTER instruction
+
+	M_VORD, // word or dword depending on operand size
+
+	M_MEMORY, // address size
+	M_FAR, // far address (M_WORD + M_MEMORY)
+};
+
+struct OpBasicInfo {
+	enum InsAttrib attrib;
+	int modrm;
+	enum ImmType immed;
+};
+
+struct OpState {
+	int index;
+
+	struct OpBasicInfo basic;
+	int pfx_rep, pfx_seg, pfx_opsize, pfx_memsize;
+	int opcode, modrm_off, imm_off;
+};
+#define MAXLEN_X86 15
 
 #define lxor(a,b) (!(a) != !(b))
 static int get_imm_size(enum ImmType imm, int opsize, int memsize)
@@ -23,8 +60,7 @@ static int get_imm_size(enum ImmType imm, int opsize, int memsize)
 	case M_FAR:
 		return memsize ? 6 : 4;
 	default:
-		assert(!"Invalid ImmType");
-		return -1;
+		return 16;
 	}
 }
 
@@ -41,7 +77,7 @@ static const struct OpBasicInfo op_basic_info_0f38 = { A_NONE, 1, M_NONE };
 static const struct OpBasicInfo op_basic_info_0f3a = { A_NONE, 1, M_BYTE };
 
 /* If sib is out of bounds, you can pass an arbitrary value. */
-static int modrm_length(uint8_t modrm, uint8_t sib, int memsize)
+static int modrm_length(unsigned char modrm, unsigned char sib, int memsize)
 {
 	int len = 0;
 
@@ -69,35 +105,36 @@ static int modrm_length(uint8_t modrm, uint8_t sib, int memsize)
 	return len;
 }
 
-#define CHECK_INDEX(x,y) if(x > MAXLEN_X86-y) return 1
-int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
+#define CHECK_INDEX(x,y) if(x > MAXLEN_X86-y) return -1
+int dovzhyna(unsigned char *data, int bits32)
 {
-	op->index = 0;
-	op->pfx_rep = op->pfx_seg = op->pfx_opsize = op->pfx_memsize = 0;
-	uint8_t code = 0;
+	struct OpState op;
+	op.index = 0;
+	op.pfx_rep = op.pfx_seg = op.pfx_opsize = op.pfx_memsize = 0;
+	unsigned char code = 0;
 	int map = -1;
 
 	/* legacy prefixes */
 	while (map != 0) {
-		CHECK_INDEX(op->index, 1);
-		code = data[op->index++];
+		CHECK_INDEX(op.index, 1);
+		code = data[op.index++];
 
 		switch (code) {
 		case 0xF0: /* LOCK */
 		case 0xF2: /* REPNE */
 		case 0xF3: /* REP */
-			op->pfx_rep = code; break;
+			op.pfx_rep = code; break;
 		case 0x26: /* ES */
 		case 0x2E: /* CS */
 		case 0x36: /* SS */
 		case 0x3E: /* DS */
 		case 0x64: /* FS */
 		case 0x65: /* GS */
-			op->pfx_seg = code; break;
+			op.pfx_seg = code; break;
 		case 0x66: /* operand size prefix */
-			op->pfx_opsize = code; break;
+			op.pfx_opsize = code; break;
 		case 0x67: /* address size prefix */
-			op->pfx_memsize = code; break;
+			op.pfx_memsize = code; break;
 		default:
 			map = 0; break;
 		}
@@ -106,59 +143,59 @@ int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 	/* figure out the opcode map */
 	if (code == 0x0F) { /* 2-byte opcode prefix */
 		map = 1;
-		CHECK_INDEX(op->index, 1);
-		code = data[op->index++];
+		CHECK_INDEX(op.index, 1);
+		code = data[op.index++];
 
 		if (code == 0x38 || code == 0x3A) { /* 3-byte opcode prefix */
 			map = code == 0x38 ? 2 : 3;
-			CHECK_INDEX(op->index, 1);
-			code = data[op->index++];
+			CHECK_INDEX(op.index, 1);
+			code = data[op.index++];
 		}
 	}
 
 	switch (map) {
 	case 0: /* xx */
-		op->opcode = code;
-		op->basic = op_basic_info(code);
+		op.opcode = code;
+		op.basic = op_basic_info(code);
 		break;
 	case 1: /* 0F xx */
-		op->opcode = 0x0F00 | code;
-		op->basic = op_basic_info_0f(code);
+		op.opcode = 0x0F00 | code;
+		op.basic = op_basic_info_0f(code);
 		break;
 	case 2: /* 0F 38 xx */
-		op->opcode = 0x0F3800 | code;
-		op->basic = op_basic_info_0f38;
+		op.opcode = 0x0F3800 | code;
+		op.basic = op_basic_info_0f38;
 		break;
 	case 3: /* 0F 3A xx */
-		op->opcode = 0x0F3A00 | code;
-		op->basic = op_basic_info_0f3a;
+		op.opcode = 0x0F3A00 | code;
+		op.basic = op_basic_info_0f3a;
 		break;
 	}
 
-	if (op->basic.attrib == A_UD)
-		return 1;
+	if (op.basic.attrib == A_UD)
+		return -1;
 
 	/* modrm */
-	if (op->basic.modrm) {
-		op->modrm_off = op->index;
-		CHECK_INDEX(op->index, 1);
-		uint8_t modrm = data[op->index++];
-		uint8_t sib = op->index != MAXLEN_X86 ? data[op->index] : 0;
+	if (op.basic.modrm) {
+		op.modrm_off = op.index;
+		CHECK_INDEX(op.index, 1);
+		unsigned char modrm = data[op.index++];
+		unsigned char sib = op.index != MAXLEN_X86 ? data[op.index] : 0;
 
-		int len = modrm_length(modrm, sib, lxor(bits32, op->pfx_memsize));
-		CHECK_INDEX(op->index, len);
-		op->index += len;
+		int len = modrm_length(modrm, sib, lxor(bits32, op.pfx_memsize));
+		CHECK_INDEX(op.index, len);
+		op.index += len;
 
-		switch (op->opcode) {
+		switch (op.opcode) {
 		case 0xC5: /* LDS (VEX 2-byte) */
 		case 0xC4: /* LES (VEX 3-byte) */
 		case 0x62: /* BOUND (EVEX 4-byte) */
 			if ((modrm & 0xC0) == 0xC0)
-				return 1; /* Unsupported for now */
+				return -1; /* Unsupported for now */
 			break;
 		case 0x8F: /* Grp1A (XOP prefix) */
 			if ((modrm & 0x38) != 0) /* reg != /0 */
-				return 1; /* Unsupported */
+				return -1; /* Unsupported */
 			break;
 		case 0xF6: /* Grp3 rm8 [imm8] */
 		case 0xF7: /* Grp3 rm32 [imm32] */
@@ -168,17 +205,17 @@ int dovzhyna_decode(struct OpState *op, uint8_t* data, int bits32)
 			 * encoded according to /0 and /1, so for everything else we
 			 * have to set immed to none. */
 			if ((modrm & 0x38) > 0x10) /* reg > /1 */
-				op->basic.immed = M_NONE;
+				op.basic.immed = M_NONE;
 			break;
 		}
 	}
 
 	/* immed */
-	if (op->basic.immed) {
-		op->imm_off = op->index;
-		op->index += get_imm_size(op->basic.immed, lxor(bits32, op->pfx_opsize), lxor(bits32, op->pfx_memsize));
-		CHECK_INDEX(op->index, 0);
+	if (op.basic.immed) {
+		op.imm_off = op.index;
+		op.index += get_imm_size(op.basic.immed, lxor(bits32, op.pfx_opsize), lxor(bits32, op.pfx_memsize));
+		CHECK_INDEX(op.index, 0);
 	}
 
-	return 0;
+	return op.index;
 }
